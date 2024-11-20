@@ -1,0 +1,345 @@
+mysql>  CREATE TABLE postac (id_postaci INTEGER AUTO_INCREMENT PRIMARY KEY, nazwa VARCHAR(40), rodzaj ENUM("wiking","ptak","kobieta"), data_ur DATE, wiek INT);
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> INSERT INTO postac VALUES(1, "Bjorn", 'wiking', 2000-04-04, 24);
+ERROR 1292 (22007): Incorrect date value: '1992' for column 'data_ur' at row 1
+mysql> INSERT INTO postac VALUES(1, "Bjorn", 'wiking','2000-04-04', 24);
+Query OK, 1 row affected (0.01 sec)
+
+mysql>  INSERT INTO postac VALUES(2, "Tesciowa", 'kobieta','1961-04-04', 63);
+Query OK, 1 row affected (0.00 sec)
+
+mysql>  INSERT INTO postac VALUES(3, "Drozd", 'ptak','2020-04-04', 4);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> UPDATE postac SET wiek = 88 WHERE nazwa = "Tesciowa";
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> CREATE TABLE walizka (id_walizki INTEGER AUTO_INCREMENT PRIMARY KEY, rodzaj ENUM("rozowy","czerwony","teczowy","zolty"), pojemnosc INT, id_wlasciciela INTEGER, FORGEIN KEY (id_wlasciciela) REFERENCES postac(id_postaci));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'KEY (id_wlasciciela) REFERENCES postac(id_postaci))' at line 1
+mysql> CREATE TABLE walizka (id_walizki INTEGER AUTO_INCREMENT PRIMARY KEY, rodzaj ENUM("rozowy","czerwony","teczowy","zolty"), pojemnosc INT, id_wlasciciela INTEGER, FOREIGN KEY (id_wlasciciela) REFERENCES postac(id_postaci))
+    -> ;
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> DROP TABLE walizka;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE walizka (id_walizki INTEGER AUTO_INCREMENT PRIMARY KEY, rodzaj ENUM("rozowy","czerwony","teczowy","zolty") DEFAULT "rozowy", pojemnosc INT, id_wlasciciela INTEGER, FOREIGN KEY (id_wlasciciela) REFERENCES postac(id_postaci))
+    -> ;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO walizka VALUES(1,'zolty',5,1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO walizka VALUES(2,5,2);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+mysql> INSERT INTO walizka VALUES(2,'rozowy',5,2);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> CREATE TABLE izba (adres_budynku VARCHAR(40), nazwa_izby VARCHAR(40), metrarz INTEGER, wlasciciel INTEGER, PRIMARY KEY(adres_budynku,nazwa_izby), FOREIGN KEY(wlasciciel) REFERENCES postac(id_postaci)
+    -> )
+    -> ;
+Query OK, 0 rows affected (0.19 sec)
+
+mysql> SHOW TABLES
+    -> ;
++-----------------------+
+| Tables_in_slusarczyka |
++-----------------------+
+| izba                  |
+| postac                |
+| walizka               |
++-----------------------+
+3 rows in set (0.00 sec)
+
+mysql> ALTER TABLE izba ADD kolor ENUM("rozowy","czerwony","teczowy","zolty","czarny");
+Query OK, 0 rows affected (0.08 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO izba VALUES("uwm", "spizarnia", 33, 1, 'zolty');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FORGEIN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), ' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FORGEIN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), ' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", INTEGER id_konsumenta, FOREIGN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREIGN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INTEGER id_konsumenta, FOREIGN KEY(id_wykonawcy) REFERENCES postac(id_postaci), ' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FORGEIN KEY(id_konsumenta) REFERENCES postac(id_postaci
+[2]+  Stopped                 mysql -u slusarczyka -p
+slusarczyka@bad2:~$ mysql -u slusarczyka -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 168
+Server version: 8.0.22 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use slusarczyka
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> SHOW TABLES;
++-----------------------+
+| Tables_in_slusarczyka |
++-----------------------+
+| izba                  |
+| postac                |
+| walizka               |
++-----------------------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FORGEIN KEY(id_konsumenta) REFERENCES postac(id_postaci
+    -> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", INTEGER id_konsumenta, FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id_konsumenta) REFERENCES postac(id_postaci);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INTEGER id_konsumenta, FORGEIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), ' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta IMTEGER, FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'IMTEGER, FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta INTEGER, FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id_konsumenta) REFE' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta INTEGER, FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci) FOREGIN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'KEY(id_wykonawcy) REFERENCES postac(id_postaci) FOREGIN KEY(id_konsumenta) REFER' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255), dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta INTEGER, FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id_konsumenta) REFERENCES postac(id_postaci), PRIMARY KEY (id_przetworu))
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'KEY(id_wykonawcy) REFERENCES postac(id_postaci), FOREGIN KEY(id_konsumenta) REFE' at line 1
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01', id_wykonawcy INTEGER, zawartosc VARCHAR(255)), dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta INTEGER)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ', dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta INTEGER)' at line 1
+mysql> ), dodatek VARCHAR(40) DEFAULT "papryczka chilli", id_konsumenta INTEGER,
+[3]+  Stopped                 mysql -u slusarczyka -p
+slusarczyka@bad2:~$ mysql -u slusarczyka -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 175
+Server version: 8.0.22 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> slusarczyka
+    -> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01');
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'slusarczyka
+CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produk' at line 1
+mysql> use slusarczyka
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> CREATE TABLE przetwory (id_przetworu INTEGER PRIMARY KEY, rok_produkcji DATE DEFAULT '1654-01-01');
+Query OK, 0 rows affected (0.56 sec)
+
+mysql> ALTER TABLE przetwory ADD  id_wykonawcy INTEGER;
+Query OK, 0 rows affected (0.07 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql>  ALTER TABLE przetwory ADD  id_konsumenta INTEGER;
+Query OK, 0 rows affected (0.15 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE przetwory ADD  zawartosc VARCHAR(255);
+Query OK, 0 rows affected (0.21 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE przetwory ADD  dodatek VARCHAR(40) DEFAULT "papryczka chilli";
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> SHOW TABLE przetwory;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'przetwory' at line 1
+mysql> SHOW COLLUMNS przetwory;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'COLLUMNS przetwory' at line 1
+mysql> SHOW COLUMNS przetwory;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'przetwory' at line 1
+mysql> SHOW TABLES;
++-----------------------+
+| Tables_in_slusarczyka |
++-----------------------+
+| izba                  |
+| postac                |
+| przetwory             |
+| walizka               |
++-----------------------+
+4 rows in set (0.00 sec)
+
+mysql> SHOW COLUMS FROM przetwory;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'COLUMS FROM przetwory' at line 1
+mysql> SHOW COLUMNS FROM przetwory;
++---------------+--------------+------+-----+------------------+-------+
+| Field         | Type         | Null | Key | Default          | Extra |
++---------------+--------------+------+-----+------------------+-------+
+| id_przetworu  | int          | NO   | PRI | NULL             |       |
+| rok_produkcji | date         | YES  |     | 1654-01-01       |       |
+| id_wykonawcy  | int          | YES  |     | NULL             |       |
+| id_konsumenta | int          | YES  |     | NULL             |       |
+| zawartosc     | varchar(255) | YES  |     | NULL             |       |
+| dodatek       | varchar(40)  | YES  |     | papryczka chilli |       |
++---------------+--------------+------+-----+------------------+-------+
+6 rows in set (0.03 sec)
+
+mysql> ALTER TABLE przetwory ADD FOREGIN KEY(id_wykonawcy) REFERENCES postac(id_postaci);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'KEY(id_wykonawcy) REFERENCES postac(id_postaci)' at line 1
+mysql> ALTER TABLE przetwory ADD FOREIGN KEY(id_wykonawcy) REFERENCES postac(id_postaci)
+    -> ;
+Query OK, 0 rows affected (0.21 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE przetwory ADD FOREIGN KEY(id_konsumenta) REFERENCES postac(id_postaci)
+    -> ;
+Query OK, 0 rows affected (0.13 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO przetwory VALUES(1,"2022-05-05",1,2,"bigos",DEFAULT);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> INSERT INTO postac VALUES(4, "Bjarn", 'wiking','2000-04-04', 24);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO postac VALUES(5, "Bjern", 'wiking','2000-04-04', 24);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> INSERT INTO postac VALUES(6, "Bjyrn", 'wiking','2000-04-04', 24);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO postac VALUES(7, "Bjurn", 'wiking','2000-04-04', 24);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO postac VALUES(8, "Bjirn", 'wiking','2000-04-04', 24);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CREATE TABLE statek (nazwa statku VARCHAR(255) PRIMARY KEY,rodzaj statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'statku VARCHAR(255) PRIMARY KEY,rodzaj statku  ENUM("dwu masztowiec", "trzy masz' at line 1
+mysql>  CREATE TABLE statek (nazwa statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masz' at line 1
+mysql> CREATE TABLE statek (nazwa statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    -> CREATE TABLE statek (nazwa_statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masz' at line 1
+mysql>  CREATE TABLE statek (nazwa_statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql>  CREATE TABLE statek (nazwa_statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    ->  CREATE TABLE statek (nazwa_statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'CREATE TABLE statek (nazwa_statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("' at line 2
+mysql>  CREATE TABLE statek (nazwa_statku VARCHAR(255) PRIMARY KEY,rodzaj_statku  ENUM("dwu masztowiec", "trzy masztowiec"), data_wodowania DATE, max_ladownosc INTEGER
+    -> )
+    -> ;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> INSERT INTO statek("gwiazda poranku", 'dwu masztowiec', "2000-04-04", 15);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '"gwiazda poranku", 'dwu masztowiec', "2000-04-04", 15)' at line 1
+mysql> INSERT INTO statek("gwiazda poranku", 'dwu masztowiec', "2000-04-04", 15);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '"gwiazda poranku", 'dwu masztowiec', "2000-04-04", 15)' at line 1
+mysql> INSERT INTO statek VALUES ("gwiazda poranku", 'dwu masztowiec', "2000-04-04", 15);
+Query OK, 1 row affected (0.01 sec)
+
+mysql>  INSERT INTO statek VALUES ("gwiazda poranku", 'dwu masztowiec', "2000-04-04", 15);
+ERROR 1062 (23000): Duplicate entry 'gwiazda poranku' for key 'statek.PRIMARY'
+mysql> INSERT INTO statek VALUES ("gwiazda wieczoru", 'trzy masztowiec', "2000-04-04", 15)
+    -> ;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> ALTER TABLE postac ADD funckja VARCHAR(50)
+    -> ;
+Query OK, 0 rows affected (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> UPDATE postac SET funkcja = "kapitan" WHERE id_postaci=1;
+ERROR 1054 (42S22): Unknown column 'funkcja' in 'field list'
+mysql> SHOW COLUMNS FROM postacl;
+ERROR 1146 (42S02): Table 'slusarczyka.postacl' doesn't exist
+mysql> SHOW COLUMNS FROM postac;
++------------+---------------------------------+------+-----+---------+----------------+
+| Field      | Type                            | Null | Key | Default | Extra          |
++------------+---------------------------------+------+-----+---------+----------------+
+| id_postaci | int                             | NO   | PRI | NULL    | auto_increment |
+| nazwa      | varchar(40)                     | YES  |     | NULL    |                |
+| rodzaj     | enum('wiking','ptak','kobieta') | YES  |     | NULL    |                |
+| data_ur    | date                            | YES  |     | NULL    |                |
+| wiek       | int                             | YES  |     | NULL    |                |
+| funckja    | varchar(50)                     | YES  |     | NULL    |                |
++------------+---------------------------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> UPDATE postac SET funkcja="kapitan" WHERE nazwa ="Bjorn"
+    -> ;
+ERROR 1054 (42S22): Unknown column 'funkcja' in 'field list'
+mysql> UPDATE postac SET funckja="kapitan" WHERE nazwa ="Bjorn";
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT postac WHERE id_postaci = 1;
+ERROR 1054 (42S22): Unknown column 'postac' in 'field list'
+mysql> SELECT * FROM postac WHERE id_postaci=1;
++------------+-------+--------+------------+------+---------+
+| id_postaci | nazwa | rodzaj | data_ur    | wiek | funckja |
++------------+-------+--------+------------+------+---------+
+|          1 | Bjorn | wiking | 2000-04-04 |   24 | kapitan |
++------------+-------+--------+------------+------+---------+
+1 row in set (0.00 sec)
+
+mysql> ALTER TABLE postac ADD FOREIGN KEY(funkcja) REFERENCES statek(nazwa_statku)
+    -> ;
+ERROR 1072 (42000): Key column 'funkcja' doesn't exist in table
+mysql>  ALTER TABLE postac ADD FOREIGN KEY(funkcja) REFERENCES statek(nazwa_statku)
+    -> ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku)
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku)' at line 2
+mysql>  ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku)
+    -> ;
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`slusarczyka`.`#sql-103_af`, CONSTRAINT `postac_ibfk_1` FOREIGN KEY (`funckja`) REFERENCES `statek` (`nazwa_statku`))
+mysql>  ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku)
+    -> ;
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`slusarczyka`.`#sql-103_af`, CONSTRAINT `postac_ibfk_1` FOREIGN KEY (`funckja`) REFERENCES `statek` (`nazwa_statku`))
+mysql> SHOW COLUMNS FROM statek;
++----------------+------------------------------------------+------+-----+---------+-------+
+| Field          | Type                                     | Null | Key | Default | Extra |
++----------------+------------------------------------------+------+-----+---------+-------+
+| nazwa_statku   | varchar(255)                             | NO   | PRI | NULL    |       |
+| rodzaj_statku  | enum('dwu masztowiec','trzy masztowiec') | YES  |     | NULL    |       |
+| data_wodowania | date                                     | YES  |     | NULL    |       |
+| max_ladownosc  | int                                      | YES  |     | NULL    |       |
++----------------+------------------------------------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql>  ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku)
+    -> ;
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`slusarczyka`.`#sql-103_af`, CONSTRAINT `postac_ibfk_1` FOREIGN KEY (`funckja`) REFERENCES `statek` (`nazwa_statku`))
+mysql> ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku);
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`slusarczyka`.`#sql-103_af`, CONSTRAINT `postac_ibfk_1` FOREIGN KEY (`funckja`) REFERENCES `statek` (`nazwa_statku`))
+mysql> SET FOREIGN_KEY_CHECKS=0;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER TABLE postac ADD FOREIGN KEY(funckja) REFERENCES statek(nazwa_statku);
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> SHOW COLUMNS FROM postac;
++------------+---------------------------------+------+-----+---------+----------------+
+| Field      | Type                            | Null | Key | Default | Extra          |
++------------+---------------------------------+------+-----+---------+----------------+
+| id_postaci | int                             | NO   | PRI | NULL    | auto_increment |
+| nazwa      | varchar(40)                     | YES  |     | NULL    |                |
+| rodzaj     | enum('wiking','ptak','kobieta') | YES  |     | NULL    |                |
+| data_ur    | date                            | YES  |     | NULL    |                |
+| wiek       | int                             | YES  |     | NULL    |                |
+| funckja    | varchar(50)                     | YES  | MUL | NULL    |                |
