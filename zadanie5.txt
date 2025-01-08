@@ -1,0 +1,15 @@
+ SELECT nazwa FROM kreatura WHERE idKreatury NOT IN(SELECT idKreatury FROM kreatura INNER JOIN uczestnicy u ON kreatura.idKreatury = u.id_uczestnika)
+    -> ;
+ SELECT w.nazwa, COUNT(*) FROM uczestnicy u  JOIN wyprawa w ON w.id_wyprawy= u.id_wyprawy JOIN kreatura k ON  u.id_uczestnika=k.idKreatury GROUP BY w.nazwa;
+
+SELECT w.nazwa, COUNT(*), k.nazwa FROM uczestnicy u  JOIN wyprawa w ON w.id_wyprawy= u.id_wyprawy JOIN kreatura k ON  u.id_uczestnika=k.idKreatury GROUP BY w.nazwa;
+
+ SELECT w.nazwa, COUNT(*), GROUP_CONCAT(k.nazwa) AS uczestnicyWyprawy  FROM uczestnicy u  JOIN wyprawa w ON w.id_wyprawy= u.id_wyprawy JOIN kreatura k ON  u.id_uczestnika=k.idKreatury GROUP BY w.nazwa;
+
+SELECT s.nazwa , COUNT(*) FROM sektor s JOIN etapy_wyprawy ew ON s.id_sektora = ew.sektor GROUP BY s.nazwa
+    -> ;
+SELECT AVG(z.waga) FROM zasob z JOIN wyprawa w ON z.dataPozyskania BETWEEN w.data_rozpoczecia AND w.data_zakonczenia GROUP BY w.nazwa;
+
+ SELECT SUM( LENGTH(ew.dziennik)), w.nazwa  FROM etapy_wyprawy ew JOIN wyprawa w ON w.id_wyprawy=ew.idWyprawy GROUP BY w.nazwa;
+
+SELECT k.nazwa, DATEDIFF(w.data_rozpoczecia,k.dataUr) FROM kreatura k JOIN uczestnicy u ON u.id_uczestnika=k.idKreatury JOIN wyprawa w ON w.id_wyprawy=u.id_wyprawy JOIN etapy_wyprawy ew ON ew.idWyprawy=w.id_wyprawy WHERE ew.sektor=7;
